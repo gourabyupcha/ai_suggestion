@@ -1,0 +1,38 @@
+name = "ai_suggestion-worker"
+main = "main.py"             # ▶️ adjust if your entrypoint is .ts or elsewhere
+compatibility_date = "2025-07-01" # ▶️ today's date is a safe baseline
+workers_dev = true                # ▶️ set false if using custom domain
+# account_id = "YOUR_ACCOUNT_ID"   # ▶️ add your Cloudflare account ID (optional if using env var)
+
+# 🌐 If deploying to your domain instead of workers.dev:
+# route = { pattern = "example.com/*", zone_name = "example.com" }
+
+# KV namespace (example):
+# [[kv_namespaces]]
+# binding = "MY_KV"
+# id = "your-kv-namespace-id"
+# preview_id = "your-kv-namespace-preview-id" # optional
+
+# R2 bucket (example):
+# [[r2_buckets]]
+# binding = "MY_BUCKET"
+# bucket_name = "my-ai-bucket"
+
+# Durable Object, D1, dispatch namespaces, Workers AI, etc:
+# [ai]
+# binding = "AI"
+
+[triggers]
+crons = ["0 */6 * * *"] # ▶️ scheduled every 6 hours (adjust or remove)
+
+[observability]
+enabled = true
+head_sampling_rate = 0.5  # sample 50% of requests for logs/trace
+
+[build]
+command = "python main.py"  # ▶️ adjust if you compile TS or use bundler
+cwd = "."
+watch_dir = ""
+
+#[vars]
+# OPENAI_API_KEY = ""       # use `wrangler secret put OPENAI_API_KEY` instead of committing here
