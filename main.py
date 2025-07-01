@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from keybert import KeyBERT
 from typing import List
-import uvicorn, random
+import uvicorn, random, psutil, os
 
 app = FastAPI()
 
@@ -20,7 +20,8 @@ app.add_middleware(
 )
 
 # Initialize KeyBERT model with MiniLM (CPU-friendly)
-kw_model = KeyBERT(model='paraphrase-MiniLM-L6-v2')
+# kw_model = KeyBERT(model='paraphrase-MiniLM-L6-v2')
+kw_model = KeyBERT(model='all-MiniLM-L6-v2')
 
 # Request schema
 class TagRequest(BaseModel):
@@ -31,6 +32,19 @@ class TagRequest(BaseModel):
 # Response schema
 class TagResponse(BaseModel):
     tags: List[str]
+    
+    
+@app.get("/memory-usage")
+def memory_usage():
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+
+    return {
+        "rss_MB": round(mem_info.rss / (1024 * 1024), 2),  # Resident Set Size in MB
+        "vms_MB": round(mem_info.vms / (1024 * 1024), 2),  # Virtual Memory Size in MB
+        "percent": process.memory_percent()                # Memory % usage relative to system RAM
+    }
+
 
 @app.post("/suggest-tags", response_model=TagResponse)
 def suggest_tags(data: TagRequest):
